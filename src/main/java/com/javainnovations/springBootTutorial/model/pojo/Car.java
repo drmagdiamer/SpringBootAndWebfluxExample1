@@ -5,6 +5,7 @@ public class Car {
     private String model;
     private int year;
     private String color;
+    private Person owner;
 }
 
 
