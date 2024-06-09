@@ -1,5 +1,6 @@
 package com.javainnovations.springBootTutorial.model.pojo;
 
+import com.javainnovations.springBootTutorial.model.dto.PersonDto;
 import lombok.*;
 import lombok.extern.log4j.Log4j2;
 
@@ -11,6 +12,7 @@ import java.util.List;
 @Log4j2
 @Builder
 @AllArgsConstructor
+@ToString
 public class Person {
     private String name;
     private int age;
@@ -26,6 +28,14 @@ public class Person {
         this.name = name;
         this.age = age;
         this.hasMilitaryService = hasMilitaryService;
+    }
+
+    public PersonDto toPersonDto() {
+        return PersonDto.builder()
+                .name(this.name)
+                .age(this.age)
+                .hasMilitaryService(this.hasMilitaryService)
+                .build();
     }
 
 

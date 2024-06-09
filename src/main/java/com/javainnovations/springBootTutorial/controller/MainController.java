@@ -1,30 +1,75 @@
 package com.javainnovations.springBootTutorial.controller;
 
 
+import com.javainnovations.springBootTutorial.model.dto.PersonDto;
 import com.javainnovations.springBootTutorial.model.pojo.Person;
+import com.javainnovations.springBootTutorial.service.definition.DbService;
 import lombok.extern.log4j.Log4j2;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+
+import java.net.URI;
 
 @RestController
 @Log4j2
 public class MainController {
+
+    @Autowired
+    private DbService dbService;
+
     @GetMapping("/")
     public String root(){
         log.info("Hello from root");
         return "HI";
     }
 
-    @PostMapping("/")
-    public String root2(){
-        log.info("Hello from root2");
-        return "Hello From Post";
+    @GetMapping(value="/savePersonFromGetQueryParam")
+    public Person savePersonFromGetQueryParam(@RequestParam  String name,
+                                                    @RequestParam int age,
+                                                    @RequestParam boolean hasMilitaryService){
+        log.info("Hello from savePersonFromForm");
+        log.info("Name: " + name);
+        log.info("Age: " + age);
+        log.info("Has Military Service: " + hasMilitaryService);
+        PersonDto personDtoResult = dbService.savePerson(new Person(name, age, hasMilitaryService));
+        if(personDtoResult.getId()!= 0){
+            log.info("Person saved: " + personDtoResult.toString());
+        } else {
+            log.info("Person error in saving: " + personDtoResult.toString());
+        }
+        return personDtoResult.toPerson();
+    }
+
+    @GetMapping(value="/savePersonFromGetQueryParamProfessional")
+    public ResponseEntity<PersonDto> savePersonFromGetQueryParamProfessional(@RequestParam  String name,
+                                              @RequestParam int age,
+                                              @RequestParam boolean hasMilitaryService){
+        log.info("Hello from savePersonFromGetQueryParamProfessional");
+        log.info("Name: " + name);
+        log.info("Age: " + age);
+        log.info("Has Military Service: " + hasMilitaryService);
+        try {
+            PersonDto personDtoResult = dbService.savePerson(new Person(name, age, hasMilitaryService));
+            if(personDtoResult.getId()!= 0){
+                log.info("Person saved: " + personDtoResult.toString());
+            } else {
+                log.info("Person error in saving: " + personDtoResult.toString());
+            }
+            URI location = ServletUriComponentsBuilder.fromCurrentContextPath().path("/getPerson/{id}")
+                    .buildAndExpand(personDtoResult.getId()).toUri();
+            return ResponseEntity.created(location).body(personDtoResult);
+        } catch (Exception e) {
+            System.out.println("Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @GetMapping("/savePersonFromGetForm")
-    public String savePersonFromForm(@RequestParam String name,
+    public Person savePersonFromForm(@RequestParam String name,
                                      @RequestParam int age, @RequestParam boolean hasMilitaryService)
     {
         log.info("Hello from savePersonFromForm");
@@ -32,11 +77,17 @@ public class MainController {
         log.info("Age: " + age);
         log.info("Has Military Service: " + hasMilitaryService);
 
-        return "Hello from savePersonFromWebForm";
+        PersonDto personDtoResult = dbService.savePerson(new Person(name, age, hasMilitaryService));
+        if(personDtoResult.getId()!= 0){
+            log.info("Person saved: " + personDtoResult.toString());
+        } else {
+            log.info("Person error in saving: " + personDtoResult.toString());
+        }
+        return personDtoResult.toPerson();
     }
 
     @PostMapping("/savePersonFromPostForm")
-    public String savePersonFromPostForm(@RequestParam String name,
+    public Person savePersonFromPostForm(@RequestParam String name,
                                          @RequestParam int age, @RequestParam boolean hasMilitaryService)
     {
         log.info("Hello from savePersonFromPostForm");
@@ -44,39 +95,71 @@ public class MainController {
         log.info("Age: " + age);
         log.info("Has Military Service: " + hasMilitaryService);
 
-        return "Hello from savePersonFromWebForm";
+        PersonDto personDtoResult = dbService.savePerson(new Person(name, age, hasMilitaryService));
+        if(personDtoResult.getId()!= 0){
+            log.info("Person saved: " + personDtoResult.toString());
+        } else {
+            log.info("Person error in saving: " + personDtoResult.toString());
+        }
+        return personDtoResult.toPerson();
     }
 
     @PostMapping("/savePersonUsingBody")
-    public String savePersonUsingBody(@RequestBody(required = false) Person person){
+    public Person savePersonUsingBody(@RequestBody(required = false) Person person){
         log.info("Hello from savePersonFromPostForm");
         log.info("Name: " + person.getName());
         log.info("Age: " + person.getAge());
         log.info("Has Military Service: " + person.isHasMilitaryService());
 
-        return "Hello from savePersonFromWebForm";
+        PersonDto personDtoResult = dbService.savePerson(person);
+        if(personDtoResult.getId()!= 0){
+            log.info("Person saved: " + personDtoResult.toString());
+        } else {
+            log.info("Person error in saving: " + personDtoResult.toString());
+        }
+        return personDtoResult.toPerson();
     }
 
     @GetMapping("/savePersonFromPathParam/{name}/{age}/{hasMilitaryService}")
-    public String savePersonFromPathParam(@PathVariable("name") String name,
+    public Person savePersonFromPathParam(@PathVariable("name") String name,
                                           @PathVariable("age") int age,
                                           @PathVariable("hasMilitaryService") boolean hasMilitaryService){
         log.info("Hello from savePersonFromPathParam");
         log.info("Name: " + name);
         log.info("Age: " + age);
         log.info("Has Military Service: " + hasMilitaryService);
-        return "Hello from savePersonFromPathParam";
+        PersonDto personDtoResult = dbService.savePerson(new Person(name, age, hasMilitaryService));
+        if(personDtoResult.getId()!= 0){
+            log.info("Person saved: " + personDtoResult.toString());
+        } else {
+            log.info("Person error in saving: " + personDtoResult.toString());
+        }
+        return personDtoResult.toPerson();
     }
 
     @GetMapping("/savePersonFromHeaderParam")
-    public String savePersonFromHeaderParam(@RequestHeader(value = "name") String name,
+    public Person savePersonFromHeaderParam(@RequestHeader(value = "name") String name,
                                             @RequestHeader(value = "age") int age,
                                             @RequestHeader(value = "hasMilitaryService") boolean hasMilitaryService){
         log.info("Hello from savePersonFromHeaderParam");
         log.info("Name: " + name);
         log.info("Age: " + age);
         log.info("Has Military Service: " + hasMilitaryService);
-        return "Hello from savePersonFromHeaderParam";
+        PersonDto personDtoResult = dbService.savePerson(new Person(name, age, hasMilitaryService));
+        if(personDtoResult.getId()!= 0){
+            log.info("Person saved: " + personDtoResult.toString());
+        } else {
+            log.info("Person error in saving: " + personDtoResult.toString());
+        }
+        return personDtoResult.toPerson();
+    }
+
+    @GetMapping("/getPerson/{id}")
+    public Person getPerson(@PathVariable("id") String id){
+        log.info("Hello from getPerson");
+        log.info("id: " + id);
+
+        return dbService.getPerson(Integer.parseInt(id));
     }
 
     @GetMapping("/test")
