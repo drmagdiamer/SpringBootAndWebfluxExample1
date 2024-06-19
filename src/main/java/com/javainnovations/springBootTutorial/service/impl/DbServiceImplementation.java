@@ -17,17 +17,19 @@ public class DbServiceImplementation implements DbService {
     @Autowired
     private PersonRepo personRepo;
 
+    //Major  issue: concurrency-control issue
+    //private int customerId;
 
     @Override
-    public Person getPerson(int id) {
+    public PersonDto getPerson(int id) {
         Optional<PersonDto> personDtoOptional = personRepo.findById(id);
         personDtoOptional.ifPresent(personDto -> {
                 log.info("Person found: " + personDto.toString());
             });
-        Person result = null;
+        PersonDto result = null;
         if(personDtoOptional.isPresent()){
             PersonDto personDto =  personDtoOptional.get();
-            result = personDto.toPerson();
+            result = personDto;
         }
 
         return result;

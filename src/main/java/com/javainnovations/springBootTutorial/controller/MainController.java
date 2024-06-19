@@ -8,6 +8,7 @@ import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
@@ -28,7 +29,7 @@ public class MainController {
     }
 
     @GetMapping(value="/savePersonFromGetQueryParam")
-    public Person savePersonFromGetQueryParam(@RequestParam  String name,
+    public PersonDto savePersonFromGetQueryParam(@RequestParam  String name,
                                                     @RequestParam int age,
                                                     @RequestParam boolean hasMilitaryService){
         log.info("Hello from savePersonFromForm");
@@ -41,7 +42,7 @@ public class MainController {
         } else {
             log.info("Person error in saving: " + personDtoResult.toString());
         }
-        return personDtoResult.toPerson();
+        return personDtoResult;
     }
 
     @GetMapping(value="/savePersonFromGetQueryParamProfessional")
@@ -105,7 +106,7 @@ public class MainController {
     }
 
     @PostMapping("/savePersonUsingBody")
-    public Person savePersonUsingBody(@RequestBody(required = false) Person person){
+    public Person savePersonUsingBody(@Validated @RequestBody(required = false) Person person){
         log.info("Hello from savePersonFromPostForm");
         log.info("Name: " + person.getName());
         log.info("Age: " + person.getAge());
@@ -155,7 +156,7 @@ public class MainController {
     }
 
     @GetMapping("/getPerson/{id}")
-    public Person getPerson(@PathVariable("id") String id){
+    public PersonDto getPerson(@PathVariable("id") String id){
         log.info("Hello from getPerson");
         log.info("id: " + id);
 
